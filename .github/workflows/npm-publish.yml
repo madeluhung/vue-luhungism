@@ -1,0 +1,32 @@
+name: Publish to NPM
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'NPM version'
+        required: true
+        default: 'gas'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and .npmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      # Generate .npmrc file for npm authentication
+      - run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Publish to NPM
+        run: npm publish
